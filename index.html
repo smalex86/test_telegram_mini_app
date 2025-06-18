@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizza Order</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 16px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #0088cc;
+            text-align: center;
+        }
+        .pizza-option {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .pizza-option:hover {
+            background: #f9f9f9;
+        }
+        .pizza-option.selected {
+            background: #e3f2fd;
+            border-color: #0088cc;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            text-align: center;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🍕 Выберите пиццу</h2>
+
+        <div class="pizza-option" data-item="Пепперони" data-price="550">Пепперони — 550 ₽</div>
+        <div class="pizza-option" data-item="Маргарита" data-price="450">Маргарита — 450 ₽</div>
+        <div class="pizza-option" data-item="Гавайская" data-price="500">Гавайская — 500 ₽</div>
+
+        <div id="status">Выберите пиццу...</div>
+    </div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Раскрываем на весь экран
+
+        // Элементы DOM
+        const pizzaOptions = document.querySelectorAll('.pizza-option');
+        const statusDiv = document.getElementById('status');
+
+        let selectedPizza = null;
+
+        // Обработчик выбора пиццы
+        pizzaOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                pizzaOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+
+                selectedPizza = {
+                    item: option.getAttribute('data-item'),
+                    price: option.getAttribute('data-price')
+                };
+
+                statusDiv.textContent = `Выбрано: ${selectedPizza.item} (${selectedPizza.price} ₽)`;
+
+                // Активируем MainButton
+                tg.MainButton.setText(`Заказать ${selectedPizza.item}`);
+                tg.MainButton.show();
+            });
+        });
+
+        // Обработчик MainButton
+        tg.MainButton.onClick(() => {
+            if (!selectedPizza) return;
+
+            // Данные для отправки
+            const orderData = {
+                user_id: tg.initDataUnsafe.user?.id,
+                pizza: selectedPizza.item,
+                price: selectedPizza.price,
+                currency: 'RUB'
+            };
+
+            // Вариант 1: Отправка данных боту (через sendData)
+            tg.sendData(JSON.stringify(orderData));
+
+            // Вариант 2: Отправка на ваш Ruby-бэкенд (через fetch)
+            // fetch('https://your-ruby-api.com/orders', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(orderData)
+            // });
+
+            // Закрываем WebApp
+            tg.close();
+        });
+    </script>
+</body>
+</html>
