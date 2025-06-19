@@ -88,7 +88,11 @@
 
         // Обработчик MainButton
         tg.MainButton.onClick(() => {
+            console.log('MainButton clicked');
+
             if (!selectedPizza) return;
+
+            console.log("selectedPizza", selectedPizza);
 
             // Данные для отправки
             const orderData = {
@@ -97,6 +101,8 @@
                 price: selectedPizza.price,
                 currency: 'RUB'
             };
+
+            console.log(orderData);
 
             // Вариант 1: Отправка данных боту (через sendData)
             tg.sendData(JSON.stringify(orderData));
