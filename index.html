@@ -31,9 +31,26 @@
     <h2>🔐 Аутентификация</h2>
     <div id="auth-status">Инициализация...</div>
     <pre id="tokens-display"></pre>
+    <pre id="params-display"></pre>
 
     <script>
-        const backendAuthUrl = 'https://34c2-45-67-231-170.ngrok-free.app/auth';
+        // Получаем полный URL мини-приложения
+        const webAppUrl = window.location.href;
+
+        // Парсим параметры
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Пример: https://your-webapp.com?user_id=123&token=abc
+        const screen = urlParams.get('screen');
+        const anotherParam = urlParams.get('another_param');
+
+        // Выводим параметры в интерфейс
+        document.getElementById('params-display').innerHTML = `
+        screen: ${screen}<br>
+        another_param: ${anotherParam}<br>
+        `;
+
+        const backendAuthUrl = 'https://b2a5-45-67-231-170.ngrok-free.app/auth';
         const tg = window.Telegram.WebApp;
         tg.expand(); // Раскрываем на весь экран
         tg.MainButton.hide();
