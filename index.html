@@ -31,6 +31,7 @@
     <h2>🔐 Аутентификация</h2>
     <div id="auth-status">Инициализация...</div>
     <pre id="tokens-display"></pre>
+    <button id="logout-btn">Выйти (Сбросить токены)</button>
     <pre id="params-display"></pre>
 
     <script>
@@ -57,39 +58,58 @@
 
         const authStatus = document.getElementById('auth-status');
         const tokensDisplay = document.getElementById('tokens-display');
+        const logoutBtn = document.getElementById('logout-btn');
 
         // Проверяем, есть ли токены в localStorage
         const savedTokens = localStorage.getItem('telegram_auth_tokens');
 
-        if (savedTokens) {
-            // Токены уже есть — показываем их
-            authStatus.innerHTML = '✅ Вы уже аутентифицированы';
-            tokensDisplay.textContent = JSON.stringify(JSON.parse(savedTokens), null, 2);
-        } else {
-            // Токенов нет — запускаем аутентификацию
-            authStatus.innerHTML = '🔐 Отправляем запрос на бэкенд...';
+        function updateUI() {
+            if (savedTokens) {
+                authStatus.innerHTML = '✅ Вы аутентифицированы';
+                tokensDisplay.textContent = JSON.stringify(JSON.parse(savedTokens), null, 2);
+                logoutBtn.style.display = 'block';
+            } else {
+                authStatus.innerHTML = '🔐 Отправляем запрос на бэкенд...';
+                tokensDisplay.textContent = '';
+                logoutBtn.style.display = 'none';
 
-            // Отправляем initData на бэкенд
-            fetch(backendAuthUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ initData: tg.initData })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.tokens) {
-                    // Сохраняем токены в localStorage
-                    localStorage.setItem('telegram_auth_tokens', JSON.stringify(data.tokens));
-                    authStatus.innerHTML = '🎉 Аутентификация успешна!';
-                    tokensDisplay.textContent = JSON.stringify(data.tokens, null, 2);
-                } else {
-                    authStatus.innerHTML = '❌ Ошибка: ' + (data.error || 'Неизвестная ошибка');
-                }
-            })
-            .catch(error => {
-                authStatus.innerHTML = '❌ Ошибка сети: ' + error.message;
-            });
+                // Токенов нет — запускаем аутентификацию
+                // Отправляем initData на бэкенд
+                fetch(backendAuthUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ initData: tg.initData })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.tokens) {
+                        // Сохраняем токены в localStorage
+                        localStorage.setItem('telegram_auth_tokens', JSON.stringify(data.tokens));
+                        authStatus.innerHTML = '🎉 Аутентификация успешна!';
+                        tokensDisplay.textContent = JSON.stringify(data.tokens, null, 2);
+                    } else {
+                        authStatus.innerHTML = '❌ Ошибка: ' + (data.error || 'Неизвестная ошибка');
+                    }
+                })
+                .catch(error => {
+                    authStatus.innerHTML = '❌ Ошибка сети: ' + error.message;
+                });
+            }
         }
+
+        // Кнопка выхода
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('telegram_auth_tokens');
+            authStatus.innerHTML = '🚀 Токены удалены. Обновите страницу.';
+            tokensDisplay.textContent = '';
+            logoutBtn.style.display = 'none';
+
+            // Можно также отправить запрос на бэкенд для инвалидации токенов
+            // fetch('/logout', { method: 'POST' });
+        });
+
+        // Первоначальная загрузка
+        updateUI();
     </script>
 </body>
 </html>
