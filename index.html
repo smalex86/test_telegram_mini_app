@@ -29,6 +29,8 @@
 </head>
 <body>
     <h2>🔐 Аутентификация</h2>
+    <div id="info-status">info</div>
+    <button id="info-btn">Получить информацию о боте</button>
     <div id="auth-status">Инициализация...</div>
     <pre id="tokens-display"></pre>
     <button id="logout-btn">Выйти (Сбросить токены)</button>
@@ -53,7 +55,7 @@
         another_param: ${anotherParam}<br>
         `;
 
-        const backendAuthUrl = 'https://03ff-45-67-231-170.ngrok-free.app/auth';
+        const backendAuthUrl = 'https://03ff-45-67-231-170.ngrok-free.app/api/miniapps/0f221724-c1a9-4408-89c7-9daeb83a6cd4/auth';
         const tg = window.Telegram.WebApp;
         tg.expand(); // Раскрываем на весь экран
         tg.MainButton.hide();
@@ -63,6 +65,27 @@
         const logoutBtn = document.getElementById('logout-btn');
         const sharePhoneBtn = document.getElementById('share-phone');
         const shareStatus = document.getElementById('share-status');
+
+        //
+        // получение info
+        const backendInfoUrl = 'https://03ff-45-67-231-170.ngrok-free.app/api/miniapps/0f221724-c1a9-4408-89c7-9daeb83a6cd4/info';
+        const infoStatus = document.getElementById('info-status');
+        const infoBtn = document.getElementById('info-btn');
+
+        infoBtn.addEventListener('click', () => {
+            fetch(backendInfoUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ initData: tg.initData })
+                })
+            .then(response => response.json())
+            .then(data => {
+                infoStatus.innerHTML = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                infoStatus.innerHTML = '❌ Ошибка сети: ' + error.message;
+            });
+        });
 
         // Проверяем, есть ли токены в localStorage
         const savedTokens = localStorage.getItem('telegram_auth_tokens');
