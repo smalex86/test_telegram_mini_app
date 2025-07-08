@@ -55,7 +55,7 @@
         another_param: ${anotherParam}<br>
         `;
 
-        const backendAuthUrl = 'https://03ff-45-67-231-170.ngrok-free.app/api/v1/miniapps/0f221724-c1a9-4408-89c7-9daeb83a6cd4/auth';
+        const backendAuthUrl = 'https://03ff-45-67-231-170.ngrok-free.app/api/v1/miniapps/0f221724-c1a9-4408-89c7-9daeb83a6cd4/toppen/auth';
         const tg = window.Telegram.WebApp;
         tg.expand(); // Раскрываем на весь экран
         tg.MainButton.hide();
@@ -109,11 +109,11 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.tokens) {
+                    if (data.jwt_token) {
                         // Сохраняем токены в localStorage
-                        localStorage.setItem('telegram_auth_tokens', JSON.stringify(data.tokens));
+                        localStorage.setItem('telegram_auth_tokens', JSON.stringify(data));
                         authStatus.innerHTML = '🎉 Аутентификация успешна!';
-                        tokensDisplay.textContent = JSON.stringify(data.tokens, null, 2);
+                        tokensDisplay.textContent = JSON.stringify(data, null, 2);
                     } else {
                         authStatus.innerHTML = '❌ Ошибка: ' + (data.error || 'Неизвестная ошибка');
                     }
